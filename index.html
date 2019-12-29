@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>lazy loading picture</title>
+</head>
+<body>
+
+# первый <source> - однопиксельная картинка, которая удаляется при прокрутке страницы.
+
+<picture>
+
+  <source srcset="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
+
+  <source srcset="/images/mobile.webp 1x, /images/mobile@2x.webp 2x" type="image/webp" media="(max-width: 767px)">
+  <source srcset="/images/tablet.webp 1x, /images/tablet@2x.webp 2x" type="image/webp" media="(max-width: 1199px)">
+  <source srcset="/images/desktop.webp 1x, /images/desktop@2x.webp 2x" type="image/webp">
+  
+  <source srcset="/images/mobile.jpg 1x, /images/mobile@2x.jpg 2x" media="(max-width: 767px)">
+  <source srcset="/images/tablet.jpg 1x, /images/tablet@2x.jpg 2x" media="(max-width: 1199px)">
+  <source srcset="/images/desktop.jpg 1x, /images/desktop@2x.jpg 2x">
+  
+  <img class="lazy-loading-picture" src="/images/desktop.jpg" alt="Картинка для индекса">
+
+</picture>
+
+<script>
+
+(function(imgs){
+
+	if(imgs.length) {
+
+		if ('IntersectionObserver' in window) {
+
+			var options = {
+				root: null,
+				rootMargin: '0px 0px 200px 0px',
+				threshold: 0
+			};
+
+			var callback = function(entries, observer) {
+
+				Array.prototype.forEach.call(entries, function(entry){
+
+					console.log(entry);
+
+					if(entry.isIntersecting){
+
+						observer.unobserve(entry.target);
+						var source = entry.target.parentNode.querySelector('source');
+						source.remove();
+
+					}
+
+				});
+
+			};
+
+			var observer = new IntersectionObserver(callback, options);
+
+		}
+
+		Array.prototype.forEach.call(imgs, function(el){
+
+			var source = el.parentNode.querySelector('source');
+
+			if ('IntersectionObserver' in window) {
+
+				observer.observe(el);
+
+			} else {
+
+				el.parentNode.removeChild(source);
+
+			}
+
+		});
+
+	}
+
+})(document.querySelectorAll('.lazy-loading-picture'));
+
+</script>
+
+</body>
+</html>
